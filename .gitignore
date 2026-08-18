@@ -13,3 +13,4 @@ load_test.py
 provision_teams.py
 server/test/
 vitest.config.*
+my_algo.py
