@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #080b11;
+  --color-panel: #0e141d;
+  --color-panel2: #131b27;
+  --color-line: #1c2735;
+  --color-line2: #263447;
+  --color-ink: #e6edf3;
+  --color-muted: #8fa0b5;
+  --color-dim: #55657a;
+  --color-buy: #2ecc71;
+  --color-sell: #f0514c;
+  --color-acc: #2dd4bf;
+  --color-gold: #f0b90b;
+  --color-silver: #aab6c4;
+  --color-bronze: #cd7f32;
+  --font-sans: "General Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Clash Display", "General Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  --animate-marquee: marquee var(--duration, 40s) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration, 40s) linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-vertical {
+    to {
+      transform: translateY(-50%);
+    }
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-feature-settings: "tnum";
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #263447 transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #263447;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tape-shadow {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 3rem,
+    black calc(100% - 3rem),
+    transparent 100%
+  );
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.live-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes flash-row {
+  0% {
+    background-color: rgba(45, 212, 191, 0.14);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.flash-new {
+  animation: flash-row 1.2s ease-out;
+}
+
+* {
+  border-radius: 0 !important;
+}

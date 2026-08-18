@@ -1,0 +1,19 @@
+{
+  "name": "mercatus-arena",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TechVerse 2026 - Mercatus Arena: real-time algorithmic paper-trading platform (Render backend + Vercel frontend)",
+  "workspaces": ["server", "web"],
+  "scripts": {
+    "dev": "concurrently -n server,web -c green,blue \"npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "test": "npm run test -w server",
+    "db:up": "docker compose up -d db"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

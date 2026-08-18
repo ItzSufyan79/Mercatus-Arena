@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mercatus
+      POSTGRES_PASSWORD: mercatus
+      POSTGRES_DB: mercatus
+    ports:
+      - "5432:5432"
+    volumes:
+      - mercatus_data:/var/lib/postgresql/data
+volumes:
+  mercatus_data:
