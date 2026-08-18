@@ -7,3 +7,7 @@ __pycache__/
 .DS_Store
 .next/
 *.tsbuildinfo
+*.svg
+load_report.json
+load_test.py
+provision_teams.py
