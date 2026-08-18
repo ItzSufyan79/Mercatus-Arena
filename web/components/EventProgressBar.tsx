@@ -50,6 +50,23 @@ export function EventProgressBar({ status }: Props) {
   const endMs = status.scheduledEndAt ? new Date(status.scheduledEndAt).getTime() : null;
   const freezeMs = status.leaderboardFreezeAt ? new Date(status.leaderboardFreezeAt).getTime() : null;
   const apiFreezeMs = status.apiFreezeAt ? new Date(status.apiFreezeAt).getTime() : null;
+  const isConcluded = status.state === "EVENT_CONCLUDED";
+
+  if (isConcluded && !status.scheduledStartAt) {
+    return (
+      <div className="rounded-lg border border-line bg-panel px-4 py-3">
+        <div className="flex items-center justify-between text-[11px]">
+          <span className="font-semibold uppercase tracking-wider text-sell">
+            Event Concluded
+          </span>
+          <span className="text-dim">Waiting for next event to be scheduled</span>
+        </div>
+        <div className="relative mt-2 h-2 w-full overflow-hidden rounded-full bg-line">
+          <div className="absolute inset-y-0 left-0 w-0 rounded-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (!startMs || !endMs) {
     if (status.state === "PRE_LAUNCH" && status.scheduledStartAt) {
@@ -73,7 +90,6 @@ export function EventProgressBar({ status }: Props) {
   const elapsed = Math.max(0, now - startMs);
   const progress = Math.min(100, (elapsed / duration) * 100);
   const remaining = Math.max(0, endMs - now);
-  const isConcluded = status.state === "EVENT_CONCLUDED";
 
   const markers: Marker[] = [
     {

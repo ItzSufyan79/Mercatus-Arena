@@ -48,7 +48,9 @@ export function EventBanner({ status }: { status: Partial<STATUS> }) {
         {status.paused && <span className="text-[11px] font-bold text-gold">[PAUSED]</span>}
       </span>
       <span className="num text-[13px] text-ink">
-        {state === "PRE_LAUNCH" && startMs !== null ? (
+        {state === "EVENT_CONCLUDED" ? (
+          <span className="text-sell">Event concluded</span>
+        ) : state === "PRE_LAUNCH" && startMs !== null ? (
           <>
             T−{hms(startMs)}{" "}
             <span className="text-dim">till start</span>
