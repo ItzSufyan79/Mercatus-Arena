@@ -13,6 +13,7 @@ interface EventConfigRow {
   credentials_revealed: boolean;
   leaderboard_frozen: boolean;
   event_started_at: string | null;
+  scheduled_start_at: string | null;
   scheduled_end_at: string | null;
   leaderboard_freeze_at: string | null;
   api_freeze_at: string | null;
@@ -98,6 +99,7 @@ export class EventEngine {
       prices: Object.fromEntries(this.prices),
       datasetName: this.dataset?.name ?? null,
       eventStartedAt: this.cfg.event_started_at,
+      scheduledStartAt: this.cfg.scheduled_start_at,
       scheduledEndAt: this.cfg.scheduled_end_at,
       apiFreezeAt: this.cfg.api_freeze_at,
       leaderboardFreezeAt: this.cfg.leaderboard_freeze_at,
@@ -106,6 +108,33 @@ export class EventEngine {
 
   async tick() {
     const now = Date.now();
+
+    if (
+      this.cfg.state === "PRE_LAUNCH" &&
+      this.cfg.scheduled_start_at &&
+      now >= Date.parse(this.cfg.scheduled_start_at)
+    ) {
+      await this.startEvent({
+        startCapital: Number(this.cfg.start_capital),
+        eventMinutes:
+          (Date.parse(this.cfg.scheduled_end_at ?? this.cfg.scheduled_start_at) -
+            Date.parse(this.cfg.scheduled_start_at)) /
+          60_000,
+        blackoutMinutes:
+          this.cfg.leaderboard_freeze_at && this.cfg.scheduled_end_at
+            ? (Date.parse(this.cfg.scheduled_end_at) -
+                Date.parse(this.cfg.leaderboard_freeze_at)) /
+              60_000
+            : 20,
+        apiFreezeMinutes:
+          this.cfg.api_freeze_at && this.cfg.scheduled_end_at
+            ? (Date.parse(this.cfg.scheduled_end_at) -
+                Date.parse(this.cfg.api_freeze_at)) /
+              60_000
+            : 15,
+      });
+      return;
+    }
 
     if (
       this.cfg.leaderboard_freeze_at &&
@@ -258,6 +287,57 @@ export class EventEngine {
       state: "ACTIVE_MARKET",
       eventStartedAt: now.toISOString(),
     });
+  }
+
+  async setSchedule(startAt: Date, endAt: Date) {
+    const leaderboardFreezeAt = new Date(endAt.getTime() - 20 * 60_000);
+    const apiFreezeAt = new Date(endAt.getTime() - 15 * 60_000);
+
+    await query(
+      `update event_config set
+         state = 'PRE_LAUNCH', paused = false,
+         scheduled_start_at = $1, scheduled_end_at = $2,
+         leaderboard_freeze_at = $3, api_freeze_at = $4,
+         leaderboard_frozen = false, tick_count = 0, flash_shock = 0,
+         event_started_at = null, credentials_revealed = false
+       where id = true`,
+      [startAt, endAt, leaderboardFreezeAt, apiFreezeAt],
+    );
+
+    if (this.dataset) {
+      await query(`update market_state set last_t = 0 where dataset_id = $1`, [
+        this.dataset.dataset_id,
+      ]);
+      this.lastT = 0;
+    }
+    await query(
+      `truncate holdings, order_logs, request_logs, leaderboard_snapshot, scoring`,
+    );
+    await query(
+      `update teams set cash_balance = starting_capital, total_portfolio_value = starting_capital
+       where role = 'team'`,
+    );
+
+    await this.reloadConfig();
+    broadcast({
+      type: "schedule",
+      scheduledStartAt: startAt.toISOString(),
+      scheduledEndAt: endAt.toISOString(),
+      leaderboardFreezeAt: leaderboardFreezeAt.toISOString(),
+      apiFreezeAt: apiFreezeAt.toISOString(),
+    });
+    broadcast({ type: "state", state: "PRE_LAUNCH" });
+  }
+
+  async clearSchedule() {
+    await query(
+      `update event_config set
+         scheduled_start_at = null, scheduled_end_at = null,
+         leaderboard_freeze_at = null, api_freeze_at = null
+       where id = true`,
+    );
+    await this.reloadConfig();
+    broadcast({ type: "schedule", scheduledStartAt: null, scheduledEndAt: null });
   }
 
   async reloadConfig() {

@@ -65,6 +65,7 @@ create table if not exists event_config (
   credentials_revealed boolean not null default false,
   leaderboard_frozen boolean not null default false,
   event_started_at timestamptz,
+  scheduled_start_at timestamptz,
   scheduled_end_at timestamptz,
   leaderboard_freeze_at timestamptz,
   api_freeze_at timestamptz,
@@ -156,6 +157,9 @@ export async function migrate(): Promise<void> {
   await query(
     `insert into event_config (id) values (true)
      on conflict (id) do nothing`,
+  );
+  await query(
+    `alter table event_config add column if not exists scheduled_start_at timestamptz`,
   );
 }
 

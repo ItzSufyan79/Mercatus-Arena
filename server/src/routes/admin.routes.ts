@@ -267,3 +267,36 @@ adminRoutes.post("/leaderboard/freeze", ...adminOnly, async (_req, res) => {
   await engine.freezeLeaderboard();
   res.json({ ok: true, frozen: true });
 });
+
+adminRoutes.post("/schedule", ...adminOnly, async (req, res) => {
+  try {
+    const { start_at, end_at } = req.body ?? {};
+    if (!start_at || !end_at) {
+      return res.status(400).json({ error: "start_at and end_at required (ISO 8601 IST)" });
+    }
+    const start = new Date(start_at);
+    const end = new Date(end_at);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+    if (end.getTime() <= start.getTime()) {
+      return res.status(400).json({ error: "end_at must be after start_at" });
+    }
+    if (start.getTime() < Date.now()) {
+      return res.status(400).json({ error: "start_at must be in the future" });
+    }
+    await engine.setSchedule(start, end);
+    res.json({ ok: true, scheduledStartAt: start.toISOString(), scheduledEndAt: end.toISOString() });
+  } catch (err) {
+    serverError(res, err);
+  }
+});
+
+adminRoutes.delete("/schedule", ...adminOnly, async (_req, res) => {
+  try {
+    await engine.clearSchedule();
+    res.json({ ok: true });
+  } catch (err) {
+    serverError(res, err);
+  }
+});

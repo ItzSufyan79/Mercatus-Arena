@@ -15,6 +15,8 @@ import { useStatus } from "@/lib/useStatus";
 import { Badge, Panel, StatTile } from "@/components/ui";
 import { AreaChart } from "@/components/AreaChart";
 import { EventBanner } from "@/components/EventBanner";
+import { EventCountdown } from "@/components/EventCountdown";
+import { EventProgressBar } from "@/components/EventProgressBar";
 import { TickerTape } from "@/components/TickerTape";
 import { MarketChartCard } from "@/components/MarketChartCard";
 import { CandlesChart } from "@/components/CandlesChart";
@@ -111,7 +113,13 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
+      <EventCountdown
+        scheduledStartAt={status?.scheduledStartAt ?? null}
+        scheduledEndAt={status?.scheduledEndAt ?? null}
+        state={status?.state ?? "PRE_LAUNCH"}
+      />
       <EventBanner status={status ?? ({ state: "PRE_LAUNCH" } as STATUS)} />
+      <EventProgressBar status={status ?? ({ state: "PRE_LAUNCH" } as STATUS)} />
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0">

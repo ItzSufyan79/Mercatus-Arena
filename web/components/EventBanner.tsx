@@ -22,8 +22,10 @@ export function EventBanner({ status }: { status: Partial<STATUS> }) {
 
   const freezeAt = status.apiFreezeAt ? new Date(status.apiFreezeAt).getTime() : null;
   const endAt = status.scheduledEndAt ? new Date(status.scheduledEndAt).getTime() : null;
+  const startAt = status.scheduledStartAt ? new Date(status.scheduledStartAt).getTime() : null;
   const freezeMs = freezeAt ? Math.max(0, freezeAt - now) : null;
   const endMs = endAt ? Math.max(0, endAt - now) : null;
+  const startMs = startAt ? Math.max(0, startAt - now) : null;
 
   const hms = (ms: number) => {
     const s = Math.floor(ms / 1000);
@@ -46,8 +48,17 @@ export function EventBanner({ status }: { status: Partial<STATUS> }) {
         {status.paused && <span className="text-[11px] font-bold text-gold">[PAUSED]</span>}
       </span>
       <span className="num text-[13px] text-ink">
-        T−{hms(freezeMs ?? endMs ?? 0)}{" "}
-        <span className="text-dim">{freezeMs !== null ? "till API freeze" : "till close"}</span>
+        {state === "PRE_LAUNCH" && startMs !== null ? (
+          <>
+            T−{hms(startMs)}{" "}
+            <span className="text-dim">till start</span>
+          </>
+        ) : (
+          <>
+            T−{hms(freezeMs ?? endMs ?? 0)}{" "}
+            <span className="text-dim">{freezeMs !== null ? "till API freeze" : "till close"}</span>
+          </>
+        )}
       </span>
       <span className="num text-[11px] text-dim">
         tick <span className="text-muted">{(status.tickCount ?? 0).toLocaleString()}</span>

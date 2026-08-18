@@ -1,4 +1,5 @@
 import { EventBanner } from "@/components/EventBanner";
+import { EventProgressBar } from "@/components/EventProgressBar";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import { api, type STATUS } from "@/lib/api";
 
@@ -21,6 +22,7 @@ export default async function LeaderboardPage() {
         </p>
       </div>
       <EventBanner status={status ?? { state: "PRE_LAUNCH" }} />
+      <EventProgressBar status={status ?? { state: "PRE_LAUNCH" }} />
       <div className="max-w-3xl">
         <LeaderboardTable />
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, getToken, fmt, fmtInr } from "@/lib/api";
+import { api, getToken, fmt, fmtInr, setSchedule, clearSchedule } from "@/lib/api";
 import { useStatus } from "@/lib/useStatus";
 import { Badge, Button, Input, Panel, Select, StatTile, TableWrap, Td, Th } from "./ui";
 import { MarketChartCard } from "./MarketChartCard";
@@ -58,6 +58,7 @@ export function AdminConsole() {
   const [created, setCreated] = useState<CreatedUser[]>([]);
   const [cfg, setCfg] = useState({ volatility: 1, replaySpeed: 1, shock: -0.05 });
   const [score, setScore] = useState({ team_id: "", code: "", report: "" });
+  const [schedule, setScheduleState] = useState({ start: "", end: "" });
   const status = useStatus();
 
   useEffect(() => setToken(getToken()), []);
@@ -157,6 +158,30 @@ export function AdminConsole() {
     });
   }
 
+  async function doSchedule() {
+    if (!token || !schedule.start || !schedule.end) return;
+    try {
+      const startIso = new Date(schedule.start).toISOString();
+      const endIso = new Date(schedule.end).toISOString();
+      const r = await setSchedule(startIso, endIso);
+      setMsg(`Scheduled: ${new Date(r.scheduledStartAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} → ${new Date(r.scheduledEndAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST`);
+      await refresh();
+    } catch (e) {
+      setMsg(`Schedule failed: ${(e as Error).message}`);
+    }
+  }
+
+  async function doClearSchedule() {
+    if (!token) return;
+    try {
+      await clearSchedule();
+      setMsg("Schedule cleared");
+      await refresh();
+    } catch (e) {
+      setMsg(`Clear failed: ${(e as Error).message}`);
+    }
+  }
+
   if (!token) {
     return (
       <div className="mx-auto max-w-sm">
@@ -210,6 +235,43 @@ export function AdminConsole() {
         />
 
         <div className="space-y-5">
+          {status?.state === "PRE_LAUNCH" && (
+            <Panel title="Schedule Event">
+              <div className="space-y-3">
+                <div className="text-[11px] text-dim">
+                  Set exact IST start & end times. The market auto-starts at the scheduled time.
+                </div>
+                <Input
+                  label="Start time (IST)"
+                  type="datetime-local"
+                  value={schedule.start}
+                  onChange={(e) => setScheduleState({ ...schedule, start: e.target.value })}
+                />
+                <Input
+                  label="End time (IST)"
+                  type="datetime-local"
+                  value={schedule.end}
+                  onChange={(e) => setScheduleState({ ...schedule, end: e.target.value })}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="buy" onClick={doSchedule} disabled={!schedule.start || !schedule.end}>
+                    Schedule
+                  </Button>
+                  <Button variant="ghost" onClick={doClearSchedule}>
+                    Clear Schedule
+                  </Button>
+                </div>
+                {status?.scheduledStartAt && (
+                  <div className="text-[11px] text-buy">
+                    Scheduled: {new Date(status.scheduledStartAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST
+                    {" → "}
+                    {status.scheduledEndAt && new Date(status.scheduledEndAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST
+                  </div>
+                )}
+              </div>
+            </Panel>
+          )}
+
           <Panel title="Market Fluctuation Tools">
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2">

@@ -85,6 +85,7 @@ export interface STATUS {
   prices: Record<string, number>;
   datasetName: string | null;
   eventStartedAt: string | null;
+  scheduledStartAt: string | null;
   scheduledEndAt: string | null;
   apiFreezeAt: string | null;
   leaderboardFreezeAt: string | null;
@@ -264,3 +265,14 @@ export const fmtInr = (n: number | string | null | undefined, d = 2): string => 
     maximumFractionDigits: d,
   });
 };
+
+export async function setSchedule(startAt: string, endAt: string) {
+  return api<{ ok: boolean; scheduledStartAt: string; scheduledEndAt: string }>(
+    "/api/admin/schedule",
+    { method: "POST", body: JSON.stringify({ start_at: startAt, end_at: endAt }) },
+  );
+}
+
+export async function clearSchedule() {
+  return api<{ ok: boolean }>("/api/admin/schedule", { method: "DELETE" });
+}
