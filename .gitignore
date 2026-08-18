@@ -11,3 +11,5 @@ __pycache__/
 load_report.json
 load_test.py
 provision_teams.py
+server/test/
+vitest.config.*
