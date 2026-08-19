@@ -23,11 +23,11 @@ services:
       - key: ADMIN_EMAIL
         value: admin@mercatus.tech
       - key: ADMIN_PASSWORD
-        value: change-me-at-launch
+        value: 7DLFbZ49Fom7mImIahj9
       - key: CORS_ORIGIN
-        value: https://your-vercel-app.vercel.app
+        value: https://mercatus-arena.vercel.app
       - key: REGISTRATION_CODE
-        value: change-me-at-launch
+        value: 5524673EE6E8
       - key: RATE_LIMIT_STORE
         value: postgres
       - key: TICK_INTERVAL_MS
