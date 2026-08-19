@@ -269,7 +269,7 @@ export const fmtInr = (n: number | string | null | undefined, d = 2): string => 
 export async function setSchedule(startAt: string, endAt: string) {
   return api<{ ok: boolean; scheduledStartAt: string; scheduledEndAt: string }>(
     "/api/admin/schedule",
-    { method: "POST", body: JSON.stringify({ start_at: startAt, end_at: endAt }) },
+    { method: "POST", body: { start_at: startAt, end_at: endAt } },
   );
 }
 
