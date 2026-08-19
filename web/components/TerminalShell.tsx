@@ -84,11 +84,12 @@ export function TerminalShell({ children }: { children: React.ReactNode }) {
   }, [me]);
 
   useEffect(() => {
+    if (status?.state === "EVENT_CONCLUDED") return;
     const tick = () => setNow(new Date());
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [status?.state]);
 
   useEffect(() => {
     let alive = true;
@@ -143,13 +144,11 @@ export function TerminalShell({ children }: { children: React.ReactNode }) {
     second: "2-digit",
   });
 
-  const elapsed =
-    status?.eventStartedAt && status.state !== "PRE_LAUNCH"
-      ? Math.max(0, Math.floor((Date.now() - new Date(status.eventStartedAt).getTime()) / 1000))
-      : null;
-  const elapsedStr =
-    elapsed != null
-      ? `T+ ${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`
+  const isConcluded = status?.state === "EVENT_CONCLUDED";
+  const elapsedStr = isConcluded
+    ? "DONE"
+    : status?.eventStartedAt && status.state !== "PRE_LAUNCH"
+      ? `T+ ${String(Math.floor((Date.now() - new Date(status.eventStartedAt).getTime()) / 60000)).padStart(2, "0")}:${String(Math.floor(((Date.now() - new Date(status.eventStartedAt).getTime()) / 1000) % 60)).padStart(2, "0")}`
       : "T− " + (status?.scheduledEndAt ? "pre-launch" : "—");
 
   return (

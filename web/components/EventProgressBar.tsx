@@ -38,9 +38,10 @@ export function EventProgressBar({ status }: Props) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
+    if (status.state === "EVENT_CONCLUDED") return;
     const t = setInterval(() => setNow(Date.now()), 500);
     return () => clearInterval(t);
-  }, []);
+  }, [status.state]);
 
   const startMs = status.eventStartedAt
     ? new Date(status.eventStartedAt).getTime()

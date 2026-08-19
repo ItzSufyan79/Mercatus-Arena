@@ -7,9 +7,10 @@ export function EventBanner({ status }: { status: Partial<STATUS> }) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
+    if (status.state === "EVENT_CONCLUDED") return;
     const t = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(t);
-  }, []);
+  }, [status.state]);
 
   const labels: Record<string, [string, string]> = {
     PRE_LAUNCH: ["PRE-LAUNCH", "#55657a"],

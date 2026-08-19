@@ -15,9 +15,10 @@ export function EventCountdown({ scheduledStartAt, scheduledEndAt, state }: Prop
   const [showLabel, setShowLabel] = useState(false);
 
   useEffect(() => {
+    if (state === "EVENT_CONCLUDED") return;
     const t = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(t);
-  }, []);
+  }, [state]);
 
   useEffect(() => {
     const startMs = scheduledStartAt ? new Date(scheduledStartAt).getTime() : null;
