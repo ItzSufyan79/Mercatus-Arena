@@ -132,6 +132,15 @@ export class EventEngine {
                 Date.parse(this.cfg.api_freeze_at)) /
               60_000
             : 15,
+        freezeAt: this.cfg.leaderboard_freeze_at
+          ? new Date(this.cfg.leaderboard_freeze_at)
+          : undefined,
+        apiFreezeAt: this.cfg.api_freeze_at
+          ? new Date(this.cfg.api_freeze_at)
+          : undefined,
+        endAt: this.cfg.scheduled_end_at
+          ? new Date(this.cfg.scheduled_end_at)
+          : undefined,
       });
       return;
     }
@@ -246,14 +255,17 @@ export class EventEngine {
     eventMinutes: number;
     blackoutMinutes: number;
     apiFreezeMinutes: number;
+    freezeAt?: Date;
+    apiFreezeAt?: Date;
+    endAt?: Date;
   }) {
     const now = new Date();
-    const end = new Date(now.getTime() + opts.eventMinutes * 60_000);
-    const freezeAt = new Date(
-      now.getTime() + (opts.eventMinutes - opts.blackoutMinutes) * 60_000,
+    const end = opts.endAt ?? new Date(now.getTime() + opts.eventMinutes * 60_000);
+    const freezeAt = opts.freezeAt ?? new Date(
+      Math.max(now.getTime(), now.getTime() + (opts.eventMinutes - opts.blackoutMinutes) * 60_000),
     );
-    const apiFreezeAt = new Date(
-      now.getTime() + (opts.eventMinutes - opts.apiFreezeMinutes) * 60_000,
+    const apiFreezeAt = opts.apiFreezeAt ?? new Date(
+      Math.max(now.getTime(), now.getTime() + (opts.eventMinutes - opts.apiFreezeMinutes) * 60_000),
     );
 
     if (this.dataset) {
