@@ -241,7 +241,18 @@ export class EventEngine {
 
   async conclude() {
     await this.freezeLeaderboard();
-    await this.setLocalState("EVENT_CONCLUDED");
+    await query(
+      `update event_config set
+         state = 'PRE_LAUNCH', paused = false,
+         scheduled_start_at = null, scheduled_end_at = null,
+         leaderboard_freeze_at = null, api_freeze_at = null,
+         event_started_at = null, credentials_revealed = false,
+         leaderboard_frozen = false
+       where id = true`,
+    );
+    await this.reloadConfig();
+    broadcast({ type: "state", state: "PRE_LAUNCH" });
+    broadcast({ type: "schedule", scheduledStartAt: null, scheduledEndAt: null });
   }
 
   private async setLocalState(state: EventState) {
