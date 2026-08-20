@@ -266,13 +266,13 @@ export const fmtInr = (n: number | string | null | undefined, d = 2): string => 
   });
 };
 
-export async function setSchedule(startAt: string, endAt: string) {
+export async function setSchedule(startAt: string, endAt: string, token?: string) {
   return api<{ ok: boolean; scheduledStartAt: string; scheduledEndAt: string }>(
     "/api/admin/schedule",
-    { method: "POST", body: { start_at: startAt, end_at: endAt } },
+    { method: "POST", body: { start_at: startAt, end_at: endAt }, token },
   );
 }
 
-export async function clearSchedule() {
-  return api<{ ok: boolean }>("/api/admin/schedule", { method: "DELETE" });
+export async function clearSchedule(token?: string) {
+  return api<{ ok: boolean }>("/api/admin/schedule", { method: "DELETE", token });
 }

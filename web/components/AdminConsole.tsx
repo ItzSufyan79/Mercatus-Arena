@@ -163,7 +163,7 @@ export function AdminConsole() {
     try {
       const startIso = new Date(schedule.start).toISOString();
       const endIso = new Date(schedule.end).toISOString();
-      const r = await setSchedule(startIso, endIso);
+      const r = await setSchedule(startIso, endIso, token ?? undefined);
       setMsg(`Scheduled: ${new Date(r.scheduledStartAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} → ${new Date(r.scheduledEndAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST`);
       await refresh();
     } catch (e) {
@@ -174,7 +174,7 @@ export function AdminConsole() {
   async function doClearSchedule() {
     if (!token) return;
     try {
-      await clearSchedule();
+      await clearSchedule(token ?? undefined);
       setMsg("Schedule cleared");
       await refresh();
     } catch (e) {
