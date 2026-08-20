@@ -5,8 +5,9 @@ import { engine } from "../engine.js";
 
 export const marketRoutes = Router();
 
-marketRoutes.get("/status", (_req, res) => {
+marketRoutes.get("/status", async (_req, res) => {
   res.setHeader("Cache-Control", "no-store");
+  void engine.tick();
   res.json(engine.getStatus());
 });
 
