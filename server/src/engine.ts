@@ -344,12 +344,15 @@ export class EventEngine {
   async clearSchedule() {
     await query(
       `update event_config set
+         state = 'PRE_LAUNCH', paused = false,
          scheduled_start_at = null, scheduled_end_at = null,
-         leaderboard_freeze_at = null, api_freeze_at = null
+         leaderboard_freeze_at = null, api_freeze_at = null,
+         credentials_revealed = false
        where id = true`,
     );
     await this.reloadConfig();
     broadcast({ type: "schedule", scheduledStartAt: null, scheduledEndAt: null });
+    broadcast({ type: "state", state: "PRE_LAUNCH" });
   }
 
   async reloadConfig() {
